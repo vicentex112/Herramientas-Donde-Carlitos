@@ -55,7 +55,8 @@ const products = [
     { name: "HUEVOS por 6", price: "$1800 c/u" },
     { name: "HUEVOS por 12", price: "$3600 c/u" },
     { name: "Lechuga", price: "$700 c/u" },
-    { name: "producto de prueba", price: "$150000 c/u" },
+    { name: "Zapallo", price: "$1300 kilo" },
+    { name: "Limon Sutil", price: "$4000 kilo" },
     { name: "Champiñones bandeja", price: "$1500 c/u" }
 ];
 
