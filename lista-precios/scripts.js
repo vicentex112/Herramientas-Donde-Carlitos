@@ -26,7 +26,7 @@ const products = [
     { name: "Tomate pomarola grande", price: "$1200 kilo" },
     { name: "Tomate grande comun", price: "$1200 kilo" },
     { name: "Albahaca", price: "$1300 c/u" },
-    { name: "Sandias", price: "$3000 c/u" },
+    { name: "Sandias", price: "$3300 c/u" },
     { name: "Melon tuna", price: "$2000 c/u" },
     { name: "Melon calameño", price: "$2200 c/u" },
     { name: "Naranjas", price: "$1000 kilo" },
