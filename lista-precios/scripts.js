@@ -51,11 +51,12 @@ const products = [
     { name: "Perejil (NO TIENE RAIZ)", price: "$500 c/u" },
     { name: "Espinaca", price: "$1000 c/u" },
     { name: "Ciboulette", price: "$600 c/u" },
-    { name: "HUEVOS bandeja", price: "$7500 c/u" },
+    { name: "HUEVOS bandeja", price: "$6000 c/u" },
     { name: "HUEVOS por 6", price: "$1800 c/u" },
     { name: "HUEVOS por 12", price: "$3600 c/u" },
     { name: "Lechuga", price: "$700 c/u" },
     { name: "Zapallo", price: "$1300 kilo" },
+    { name: "Frutilla", price: "$3000 kilo" },
     { name: "Limon Sutil", price: "$4000 kilo" },
     { name: "Champiñones bandeja", price: "$1500 c/u" }
 ];
