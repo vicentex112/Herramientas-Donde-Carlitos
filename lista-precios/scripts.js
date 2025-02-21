@@ -1,7 +1,7 @@
 const products = [
     { name: "Choclo americano flaco", price: "$400 c/u" },
     { name: "Choclo humero", price: "$500 c/u" },
-    { name: "Papa limpia", price: "$700 kilo" },
+    { name: "Papa limpia", price: "$500 kilo" },
     { name: "Papa sucia", price: "$500 kilo" },
     { name: "Platano", price: "$1300 kilo" },
     { name: "Uva", price: "$2500 kilo" },
@@ -10,7 +10,7 @@ const products = [
     { name: "Morron amarillo", price: "$800 c/u" },
     { name: "Ajos", price: "$250 c/u" },
     { name: "Tomate cherry", price: "$1500 x caja" },
-    { name: "Limon", price: "$1200 kilo" },
+    { name: "Limon", price: "$1300 kilo" },
     { name: "Poroto verde", price: "$2800 kilo" },
     { name: "Poroto granado", price: "$2200 kilo" },
     { name: "Aji verde", price: "$300 c/u, 3 x $1000" },
