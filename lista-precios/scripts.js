@@ -4,7 +4,6 @@ const products = [
     { name: "Papa limpia", price: "$500 kilo" },
     { name: "Papa sucia", price: "$500 kilo" },
     { name: "Platano", price: "$1400 kilo" },
-    { name: "Uva", price: "$2500 kilo" },
     { name: "Ajos", price: "$250 c/u" },
     { name: "Ajo Chileno", price: "$500 c/u" },
     { name: "Tomate cherry", price: "$2000 x caja ½ kilo" },
