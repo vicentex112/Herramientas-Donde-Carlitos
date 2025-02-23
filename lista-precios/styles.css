@@ -105,3 +105,25 @@ td.editable input{
 #editButton:hover, #addProductButton:hover {
     background-color: #3e8e41; /* Color al pasar el ratón */
 }
+/* ... (Tu CSS existente) ... */
+
+.delete-button {
+    background-color: #ff6347; /* Rojo tomate */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-left: 5px; /* Espacio entre el input y el botón */
+    transition: background-color 0.3s ease;
+}
+
+.delete-button:hover {
+    background-color: #cc0000; /* Rojo más oscuro al pasar el ratón */
+}
+
+/* Estilos para la celda del botón eliminar */
+td:nth-child(3) {
+  text-align: center; /* Centra el botón */
+}
