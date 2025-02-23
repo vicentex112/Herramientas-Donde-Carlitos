@@ -1,27 +1,62 @@
 // Firebase configuration (REEMPLAZA CON TU CONFIGURACIÓN)
 const firebaseConfig = {
-   apiKey: "AIzaSyAuBJegABmONCeBe_ekpLEEbThEdx15BfM",
-    authDomain: "lista-de-precios-memoria.firebaseapp.com",
-    projectId: "lista-de-precios-memoria",
-    storageBucket: "lista-de-precios-memoria.firebasestorage.app",
-    messagingSenderId: "1011745847176",
-    appId: "1:1011745847176:web:2b2dad74a2227e5e49ac3d"
+   apiKey: "TU_API_KEY",
+    authDomain: "TU_AUTH_DOMAIN",
+    projectId: "TU_PROJECT_ID",
+    storageBucket: "TU_STORAGE_BUCKET",
+    messagingSenderId: "TU_MESSAGING_SENDER_ID",
+    appId: "TU_APP_ID"
 };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const productsCollection = db.collection("products");
+// FUNCIÓN DE IMPORTACIÓN (AGREGAR ESTO) -  Puedes quitarla o comentarla después de usarla.
+async function importProducts(productsArray) {
+    if (!productsArray || productsArray.length === 0) {
+        console.error("El array de productos está vacío.");
+        return;
+    }
+    const confirmImport = confirm(`¿Estás seguro de importar ${productsArray.length} productos? Esto sobreescribirá cualquier dato existente en la colección 'products'.`);
+    if (!confirmImport) {
+        return;
+    }
+
+    try {
+        // Borra la colección existente (opcional, pero recomendado para una importación limpia)
+        const snapshot = await productsCollection.get();
+        snapshot.forEach(doc => {
+            productsCollection.doc(doc.id).delete();
+        });
+        console.log("Colección 'products' existente borrada.");
+
+        // Importa los nuevos productos
+        for (const product of productsArray) {
+            await productsCollection.add(product);
+        }
+        console.log("Productos importados exitosamente!");
+        alert("Productos importados exitosamente!");
+        loadProducts(); // Recarga la lista después de la importación
+
+    } catch (error) {
+        console.error("Error durante la importación:", error);
+        alert("Error durante la importación. Revisa la consola para más detalles.");
+    }
+}
+// FIN DE LA FUNCIÓN DE IMPORTACIÓN
+
+
+const productsCollection = db.collection("products"); // Nombre de tu colección en Firestore
 
 const priceTable = document.getElementById("priceTable").getElementsByTagName("tbody")[0];
 const searchInput = document.getElementById("searchInput");
 const lastUpdatedSpan = document.getElementById("lastUpdated");
 const editButton = document.getElementById("editButton");
-const addProductButton = document.getElementById("addProductButton");
+const addProductButton = document.getElementById("addProductButton"); //Boton de agregar producto
 
-let isEditing = false;
-// YA NO ES NECESARIO UN ARRAY LOCAL: let products = [];
+let isEditing = false; // Controla el estado de edición
+let products = []; // Almacena los productos localmente
 
 // --- Funciones de Utilidad ---
 
@@ -29,98 +64,120 @@ function removeAccents(str) {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-function displayProducts(snapshot) { // Recibe el snapshot de Firestore
-    priceTable.innerHTML = ""; // Limpia la tabla
-
-    snapshot.forEach(doc => {  // Itera directamente sobre los documentos
-        const product = { id: doc.id, ...doc.data() }; // Crea el objeto product
-
+function displayProducts(productsToDisplay) {
+    priceTable.innerHTML = "";
+    productsToDisplay.forEach(product => {
         let row = priceTable.insertRow();
         let nameCell = row.insertCell();
         let priceCell = row.insertCell();
         nameCell.textContent = product.name;
         priceCell.textContent = product.price;
 
-        if (isEditing) {
-            makeCellEditable(nameCell, product.id, "name");
-            makeCellEditable(priceCell, product.id, "price");
+        //Si está en modo edicion, crea inputs
+        if (isEditing){
+          makeCellEditable(nameCell, product.id, "name");
+          makeCellEditable(priceCell, product.id, "price");
         }
     });
-
-     updateLastUpdated(); //Actualiza despues de renderizar
 }
 
-function makeCellEditable(cell, productId, field) {
+//Funcion para hacer las celdas editables
+function makeCellEditable(cell, productId, field){
     cell.classList.add("editable");
     const originalValue = cell.textContent;
     cell.innerHTML = `<input type="text" value="${originalValue}">`;
     const inputField = cell.querySelector("input");
 
-    inputField.addEventListener("blur", () => {
-        const newValue = inputField.value;
+    inputField.addEventListener("blur", () => { //Cuando se quita el click de la celda
+      const newValue = inputField.value;
         if (newValue !== originalValue) {
-            updateProductField(productId, field, newValue);
-        } else {
-            cell.textContent = originalValue;
-            cell.classList.remove("editable");
+          updateProductField(productId, field, newValue); //actualiza el valor
+        } else{ //Si no, mostrar valor original
+          cell.textContent = originalValue;
+          cell.classList.remove("editable");
         }
     });
+
 }
 
+//Funcion para actualizar producto
 async function updateProductField(productId, field, newValue) {
     try {
         await productsCollection.doc(productId).update({
             [field]: newValue,
         });
-        console.log("Producto actualizado con éxito!");
+        console.log("Producto actualizado con exito!");
+
     } catch (error) {
-        console.error("Error al actualizar el producto:", error);
+        console.error("Error updating product: ", error);
         alert("Hubo un error al actualizar el producto.");
     }
 }
 
+
 function filterProducts() {
-    // El filtro ahora se hace en el backend (Firestore)
-    const searchTerm = removeAccents(searchInput.value.toLowerCase());
+    const searchTerm = removeAccents(searchInput.value.toLowerCase()); // Todo a minúsculas y sin acentos
 
-     // Consulta a Firestore con filtro.
-    let query = productsCollection; // Inicia con la colección completa
-    if (searchTerm) { // Si hay un término de búsqueda...
-       query = query.where('name', '>=', searchTerm).where('name', '<=', searchTerm + '\uf8ff');
-    }
-
-     // Usa onSnapshot en la consulta filtrada (o la colección completa si no hay filtro)
-      query.onSnapshot(displayProducts, (error) => {
-        console.error("Error al obtener datos en tiempo real:", error);
-        alert("Error al obtener la lista de precios. Inténtalo de nuevo.");
+    const filteredProducts = products.filter(product => {
+        const productName = removeAccents(product.name.toLowerCase()); // Todo a minúsculas y sin acentos
+        return productName.includes(searchTerm);
     });
+
+    displayProducts(filteredProducts);
 }
+
 
 function updateLastUpdated() {
     const now = new Date();
-    lastUpdatedSpan.textContent = now.toLocaleString();
+    lastUpdatedSpan.textContent = now.toLocaleString(); // Formato de fecha y hora local
 }
+
+// --- Funciones de Firebase ---
+
+async function loadProducts() {
+    try {
+        const snapshot = await productsCollection.get();
+        products = []; // Limpia el array local
+        snapshot.forEach(doc => {
+          products.push({ id: doc.id, ...doc.data() });
+        });
+        displayProducts(products);
+        updateLastUpdated(); // Actualiza la fecha aquí después de cargar los productos
+        console.log("Productos cargados exitosamente", products);
+    } catch (error) {
+        console.error("Error al cargar los productos:", error);
+        alert("Error al cargar la lista de precios. Por favor, inténtalo de nuevo más tarde.");
+    }
+}
+
 
 // --- Manejo de Eventos ---
 
 searchInput.addEventListener("input", filterProducts);
 
 editButton.addEventListener("click", () => {
-    isEditing = !isEditing;
+    isEditing = !isEditing; // Alterna entre modo edición y visualización
     if (isEditing) {
         editButton.textContent = "Guardar Cambios";
+         //Vuelve a mostrar los productos, ahora editables.
+         displayProducts(products);
     } else {
         editButton.textContent = "Editar Precios";
-        // Ya no necesitas confirmación aquí, porque los cambios se guardan individualmente
+        const confirmSave = confirm("¿Estás seguro de guardar los cambios?");
+        if (confirmSave){
+          loadProducts(); //Recarga los productos (actualizados)
+
+        } else {
+          displayProducts(products);
+        }
+
     }
-    // Forzar una re-renderización.  No necesitamos loadProducts() porque onSnapshot se encarga.
-    // Usamos la última "instantánea" de los datos que tenemos.
-    displayProducts(lastSnapshot);
+
 });
 
 addProductButton.addEventListener("click", async () => {
     const newProductName = prompt("Ingrese el nombre del nuevo producto:");
-    if (!newProductName) return;
+    if (!newProductName) return; // Sale si el usuario cancela o deja el nombre en blanco
 
     const newProductPrice = prompt("Ingrese el precio del nuevo producto:");
     if (!newProductPrice) return;
@@ -130,23 +187,20 @@ addProductButton.addEventListener("click", async () => {
             name: newProductName,
             price: newProductPrice,
         };
-        await productsCollection.add(newProduct); // Solo agrega a Firestore
-        // NO actualizamos un array local.  onSnapshot se encargará.
-        // updateLastUpdated();  <-  displayProducts ya lo llama
+        const docRef = await productsCollection.add(newProduct);
+        products.push({id: docRef.id, ...newProduct}); //Actualiza el array en memoria
+        displayProducts(products); //Vuelve a mostrar
+        updateLastUpdated();
         alert("Producto agregado con éxito!");
+
     } catch (error) {
         console.error("Error al agregar producto:", error);
-        alert("Error al agregar el producto. Inténtalo de nuevo.");
+        alert("Error al agregar el producto. Por favor, inténtalo de nuevo.");
     }
 });
 
+
 // --- Inicialización ---
-// Usamos onSnapshot para escuchar cambios en tiempo real
-let lastSnapshot = null; //Almacena la ultima actualizacion de datos
-productsCollection.onSnapshot(snapshot => {
-    lastSnapshot = snapshot; //Guarda la actualizacion mas reciente.
-    displayProducts(snapshot);
-}, (error) => {
-    console.error("Error al obtener datos en tiempo real:", error);
-    alert("Error al obtener la lista de precios. Inténtalo de nuevo.");
-});
+
+loadProducts();  //Carga inicial desde firestore
+
