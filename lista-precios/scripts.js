@@ -172,6 +172,51 @@ addProductButton.addEventListener("click", async () => {
     }
 });
 
-// --- Inicialización ---
+// --- Función para generar el PDF ---
+function generatePDF() {
+        // Crea un nuevo documento PDF (en formato vertical y tamaño A4)
+      const { jsPDF } = jspdf;
+      const doc = new jsPDF();
 
-loadProducts();
+        // Título
+        doc.setFontSize(22);
+        doc.text("Lista de Precios", 20, 20);
+
+        // Fecha (dd-mm-aaaa)
+        const today = new Date();
+        const formattedDate = `<span class="math-inline">\{today\.getDate\(\)\}\-</span>{today.getMonth() + 1}-${today.getFullYear()}`;
+        doc.setFontSize(12);
+        doc.text(`Fecha: ${formattedDate}`, 20, 30);
+
+        // Crear la tabla (de forma manual, no hay una función de tabla automática en jsPDF básico)
+    let yOffset = 40; // Posición vertical inicial
+
+    // Encabezados de la tabla
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold'); // Fuente en negrita para los encabezados
+    doc.text("Producto", 20, yOffset);
+    doc.text("Precio", 100, yOffset); // Ajusta la posición horizontal según necesites
+    yOffset += 10; // Espacio después de los encabezados
+     doc.line(20, yOffset, 190, yOffset);
+     yOffset += 5;
+      doc.setFont('helvetica', 'normal'); // Fuente normal para los datos
+    // Recorrer los productos *actuales* (los que se muestran en la tabla)
+    products.forEach(product => { //Usa el array en memoria
+        doc.setFontSize(10);
+        doc.text(product.name, 20, yOffset);
+        doc.text(product.price, 100, yOffset); // Ajusta la posición
+        yOffset += 7; // Espacio entre filas
+
+        //Salto de pagina
+        if(yOffset >= 280){
+          doc.addPage();
+          yOffset = 20;
+
+             // Encabezados de la tabla
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold'); // Fuente en negrita para los encabezados
+                doc.text("Producto", 20, yOffset);
+                doc.text("Precio", 100, yOffset); // Ajusta la posición horizontal según necesites
+                yOffset += 10; // Espacio después de los encabezados
+                doc.line(20, yOffset, 190, yOffset);
+                yOffset += 5;
