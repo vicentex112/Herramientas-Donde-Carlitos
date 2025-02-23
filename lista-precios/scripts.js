@@ -55,7 +55,7 @@ function displayProducts(productsToDisplay) {
         }
     });
 }
-//Modificada
+
 function makeCellEditable(cell, productId, field) {
     cell.classList.add("editable");
     const originalValue = cell.textContent;
@@ -85,7 +85,7 @@ async function updateProductField(productId, field, newValue) {
     }
 }
 
-// NUEVA FUNCIÓN PARA ELIMINAR
+// FUNCIÓN PARA ELIMINAR
 async function deleteProduct(productId) {
     const confirmDelete = confirm("¿Estás seguro de que quieres eliminar este producto?");
     if (confirmDelete) {
@@ -149,7 +149,7 @@ editButton.addEventListener("click", () => {
             loadProducts(); // Recarga para reflejar los cambios (o los descarta)
         }
     }
-     displayProducts(products); //  Para mostrar/ocultar botones
+    displayProducts(products); // Para mostrar/ocultar botones
 });
 
 addProductButton.addEventListener("click", async () => {
@@ -174,62 +174,63 @@ addProductButton.addEventListener("click", async () => {
 
 // --- Función para generar el PDF ---
 function generatePDF() {
-        // Crea un nuevo documento PDF (en formato vertical y tamaño A4)
-      const { jsPDF } = jspdf;
-      const doc = new jsPDF();
+    // Crea un nuevo documento PDF (en formato vertical y tamaño A4)
+    const { jsPDF } = jspdf;
+    const doc = new jsPDF();
 
-        // Título
-        doc.setFontSize(22);
-        doc.text("Lista de Precios", 20, 20);
+    // Título
+    doc.setFontSize(22);
+    doc.text("Lista de Precios", 20, 20);
 
-        // Fecha (dd-mm-aaaa)
-        const today = new Date();
-        const formattedDate = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
-        doc.setFontSize(12);
-        doc.text(`Fecha: ${formattedDate}`, 20, 30);
+    // Fecha (dd-mm-aaaa)
+    const today = new Date();
+    const formattedDate = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
+    doc.setFontSize(12);
+    doc.text(`Fecha: ${formattedDate}`, 20, 30);
 
-        // Crear la tabla (de forma manual, no hay una función de tabla automática en jsPDF básico)
-    let yOffset = 40; // Posición vertical inicial
+    // Crear la tabla (de forma manual)
+    let yOffset = 40;
 
     // Encabezados de la tabla
     doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold'); // Fuente en negrita para los encabezados
+    doc.setFont('helvetica', 'bold');
     doc.text("Producto", 20, yOffset);
-    doc.text("Precio", 100, yOffset); // Ajusta la posición horizontal según necesites
-    yOffset += 10; // Espacio después de los encabezados
-     doc.line(20, yOffset, 190, yOffset);
-     yOffset += 5;
-      doc.setFont('helvetica', 'normal'); // Fuente normal para los datos
-    // Recorrer los productos *actuales* (los que se muestran en la tabla)
-    products.forEach(product => { //Usa el array en memoria
+    doc.text("Precio", 100, yOffset);
+    yOffset += 10;
+    doc.line(20, yOffset, 190, yOffset);
+    yOffset += 5;
+    doc.setFont('helvetica', 'normal');
+
+    // Recorrer los productos *actuales*
+    products.forEach(product => {
         doc.setFontSize(10);
         doc.text(product.name, 20, yOffset);
-        doc.text(product.price, 100, yOffset); // Ajusta la posición
-        yOffset += 7; // Espacio entre filas
+        doc.text(product.price, 100, yOffset);
+        yOffset += 7;
 
-        //Salto de pagina
-        if(yOffset >= 280){
-          doc.addPage();
-          yOffset = 20;
+        // Salto de página
+        if (yOffset >= 280) {
+            doc.addPage();
+            yOffset = 20;
 
-             // Encabezados de la tabla
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold'); // Fuente en negrita para los encabezados
-                doc.text("Producto", 20, yOffset);
-                doc.text("Precio", 100, yOffset); // Ajusta la posición horizontal según necesites
-                yOffset += 10; // Espacio después de los encabezados
-                doc.line(20, yOffset, 190, yOffset);
-                yOffset += 5;
-              doc.setFont('helvetica', 'normal'); // Fuente normal para los datos
+            // Encabezados de la tabla (en cada página)
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Producto", 20, yOffset);
+            doc.text("Precio", 100, yOffset);
+            yOffset += 10;
+            doc.line(20, yOffset, 190, yOffset);
+            yOffset += 5;
+            doc.setFont('helvetica', 'normal');
         }
     });
 
-    // Guardar el PDF (y forzar la descarga)
+    // Guardar el PDF
     doc.save(`Lista_de_Precios_${formattedDate}.pdf`);
-    }
+}
 
-    // Evento para el botón de generar PDF
-    document.getElementById("generatePdfButton").addEventListener("click", generatePDF);
+// Evento para el botón de generar PDF
+document.getElementById("generatePdfButton").addEventListener("click", generatePDF);
 
-    // --- Inicialización ---
-     loadProducts();
+// --- Inicialización ---
+loadProducts();
