@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.6/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.6/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.6/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> 
 
 </head>
 <body>
@@ -16,7 +17,7 @@
 
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="Buscar producto...">
-            <i class="fas fa-search search-icon"></i> 
+            <i class="fas fa-search search-icon"></i>
         </div>
 
         <table id="priceTable">
@@ -24,6 +25,7 @@
                 <tr>
                     <th>Producto</th>
                     <th>Precio</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -36,6 +38,7 @@
         <div class="update-info">
         <button id="addProductButton">Agregar Producto</button>
         </div>
+         <button id="generatePdfButton">Generar PDF</button>
     </div>
 
      <script src="scripts.js"></script>
