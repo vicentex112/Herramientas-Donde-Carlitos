@@ -184,7 +184,7 @@ function generatePDF() {
 
         // Fecha (dd-mm-aaaa)
         const today = new Date();
-        const formattedDate = `<span class="math-inline">\{today\.getDate\(\)\}\-</span>{today.getMonth() + 1}-${today.getFullYear()}`;
+        const formattedDate = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
         doc.setFontSize(12);
         doc.text(`Fecha: ${formattedDate}`, 20, 30);
 
@@ -220,3 +220,16 @@ function generatePDF() {
                 yOffset += 10; // Espacio después de los encabezados
                 doc.line(20, yOffset, 190, yOffset);
                 yOffset += 5;
+              doc.setFont('helvetica', 'normal'); // Fuente normal para los datos
+        }
+    });
+
+    // Guardar el PDF (y forzar la descarga)
+    doc.save(`Lista_de_Precios_${formattedDate}.pdf`);
+    }
+
+    // Evento para el botón de generar PDF
+    document.getElementById("generatePdfButton").addEventListener("click", generatePDF);
+
+    // --- Inicialización ---
+     loadProducts();
