@@ -13,6 +13,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const productsCollection = db.collection("products");
+const lastModifiedRef = db.collection("metadata").doc("lastModified"); // Referencia al documento de control
+
 
 const priceTable = document.getElementById("priceTable").getElementsByTagName("tbody")[0];
 const searchInput = document.getElementById("searchInput");
@@ -73,11 +75,14 @@ function makeCellEditable(cell, productId, field) {
     });
 }
 
+// --- MODIFICADA: updateProductField ---
 async function updateProductField(productId, field, newValue) {
     try {
         await productsCollection.doc(productId).update({
             [field]: newValue,
         });
+        // AÑADE ESTO: Actualiza el timestamp de última modificación
+        await lastModifiedRef.set({ timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         console.log("Producto actualizado con éxito!");
     } catch (error) {
         console.error("Error updating product: ", error);
@@ -85,17 +90,18 @@ async function updateProductField(productId, field, newValue) {
     }
 }
 
-// FUNCIÓN PARA ELIMINAR
+// --- MODIFICADA: deleteProduct ---
 async function deleteProduct(productId) {
     const confirmDelete = confirm("¿Estás seguro de que quieres eliminar este producto?");
     if (confirmDelete) {
         try {
             await productsCollection.doc(productId).delete();
+            // AÑADE ESTO: Actualiza el timestamp de última modificación
+            await lastModifiedRef.set({ timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             console.log("Producto eliminado con éxito!");
-            // Actualizar la lista local (más eficiente que recargar todo)
             products = products.filter(product => product.id !== productId);
             displayProducts(products);
-            updateLastUpdated();
+             loadLastModified(); //  Actualiza la visualización
         } catch (error) {
             console.error("Error al eliminar el producto:", error);
             alert("Hubo un error al eliminar el producto.");
@@ -111,10 +117,34 @@ function filterProducts() {
     displayProducts(filteredProducts);
 }
 
+// --- MODIFICADA:  Ya no actualiza la hora aquí ---
 function updateLastUpdated() {
-    const now = new Date();
-    lastUpdatedSpan.textContent = now.toLocaleString();
+  //Esta funcion ya no se usara.
 }
+
+// --- NUEVA FUNCIÓN: loadLastModified ---
+async function loadLastModified() {
+    try {
+        const doc = await lastModifiedRef.get();
+        if (doc.exists) {
+            const timestamp = doc.data().timestamp;
+            if (timestamp) { //  Verifica si el timestamp existe
+                const lastModifiedDate = timestamp.toDate(); // Convierte a objeto Date de JavaScript
+                lastUpdatedSpan.textContent = lastModifiedDate.toLocaleString(); // Formatea y muestra
+            } else {
+                lastUpdatedSpan.textContent = "Nunca modificado"; //  Si no hay timestamp
+            }
+        } else {
+            lastUpdatedSpan.textContent = "No encontrado"; //  Si el documento no existe
+             await lastModifiedRef.set({ timestamp: firebase.firestore.FieldValue.serverTimestamp() }); //Lo crea
+             loadLastModified(); //Vuelve a intentar
+        }
+    } catch (error) {
+        console.error("Error al cargar la fecha de última modificación:", error);
+        lastUpdatedSpan.textContent = "Error al cargar";
+    }
+}
+
 
 // --- Funciones de Firebase ---
 
@@ -126,7 +156,7 @@ async function loadProducts() {
             products.push({ id: doc.id, ...doc.data() });
         });
         displayProducts(products);
-        updateLastUpdated();
+        //  Ya NO actualiza la fecha aquí
         console.log("Productos cargados exitosamente", products);
     } catch (error) {
         console.error("Error al cargar los productos:", error);
@@ -146,12 +176,13 @@ editButton.addEventListener("click", () => {
         editButton.textContent = "Editar Precios";
         const confirmSave = confirm("¿Estás seguro de guardar los cambios?");
         if (confirmSave) {
-            loadProducts(); // Recarga para reflejar los cambios (o los descarta)
+            loadProducts();
         }
     }
-    displayProducts(products); // Para mostrar/ocultar botones
+    displayProducts(products);
 });
 
+// --- MODIFICADA: addProductButton ---
 addProductButton.addEventListener("click", async () => {
     const newProductName = prompt("Ingrese el nombre del nuevo producto:");
     if (!newProductName) return;
@@ -162,9 +193,11 @@ addProductButton.addEventListener("click", async () => {
     try {
         const newProduct = { name: newProductName, price: newProductPrice };
         const docRef = await productsCollection.add(newProduct);
+        // AÑADE ESTO: Actualiza el timestamp de última modificación
+        await lastModifiedRef.set({ timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         products.push({ id: docRef.id, ...newProduct });
         displayProducts(products);
-        updateLastUpdated();
+        loadLastModified(); //  Actualiza la visualización
         alert("Producto agregado con éxito!");
     } catch (error) {
         console.error("Error al agregar producto:", error);
@@ -174,24 +207,19 @@ addProductButton.addEventListener("click", async () => {
 
 // --- Función para generar el PDF ---
 function generatePDF() {
-    // Crea un nuevo documento PDF (en formato vertical y tamaño A4)
     const { jsPDF } = jspdf;
     const doc = new jsPDF();
 
-    // Título
     doc.setFontSize(22);
     doc.text("Lista de Precios", 20, 20);
 
-    // Fecha (dd-mm-aaaa)
     const today = new Date();
     const formattedDate = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
     doc.setFontSize(12);
     doc.text(`Fecha: ${formattedDate}`, 20, 30);
 
-    // Crear la tabla (de forma manual)
     let yOffset = 40;
 
-    // Encabezados de la tabla
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text("Producto", 20, yOffset);
@@ -201,19 +229,16 @@ function generatePDF() {
     yOffset += 5;
     doc.setFont('helvetica', 'normal');
 
-    // Recorrer los productos *actuales*
     products.forEach(product => {
         doc.setFontSize(10);
         doc.text(product.name, 20, yOffset);
         doc.text(product.price, 100, yOffset);
         yOffset += 7;
 
-        // Salto de página
         if (yOffset >= 280) {
             doc.addPage();
             yOffset = 20;
 
-            // Encabezados de la tabla (en cada página)
             doc.setFontSize(12);
             doc.setFont('helvetica', 'bold');
             doc.text("Producto", 20, yOffset);
@@ -225,12 +250,11 @@ function generatePDF() {
         }
     });
 
-    // Guardar el PDF
     doc.save(`Lista_de_Precios_${formattedDate}.pdf`);
 }
 
-// Evento para el botón de generar PDF
 document.getElementById("generatePdfButton").addEventListener("click", generatePDF);
 
 // --- Inicialización ---
-loadProducts();
+loadLastModified(); // Carga la fecha de última modificación *primero*
+loadProducts(); // *Luego* carga los productos
