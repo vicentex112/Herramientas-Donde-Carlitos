@@ -171,3 +171,30 @@ td:nth-child(3) {
         font-size: 0.8em;
     }
 }
+/* ... (Tu CSS existente) ... */
+
+#geminiLink {
+    position: fixed; /* Fija el enlace en la pantalla */
+    bottom: 10px;   /* A 10px de la parte inferior */
+    right: 10px;    /* A 10px de la derecha */
+    z-index: 1000;  /* Asegura que esté por encima de otros elementos */
+    opacity: 0.6; /* Un poco de transparencia para que sea discreto */
+    transition: opacity 0.3s ease; /* Transición suave al pasar el ratón */
+}
+
+#geminiLink:hover {
+    opacity: 1; /* Opacidad total al pasar el ratón */
+}
+
+#geminiLink img {
+    width: 24px;  /* Tamaño del icono (ajústalo según necesites) */
+    height: 24px;
+    display: block; /* Para que el enlace ocupe todo el tamaño de la imagen */
+}
+
+/*Ocultar en impresion*/
+ @media print {
+    #geminiLink {
+        display: none;
+    }
+}
