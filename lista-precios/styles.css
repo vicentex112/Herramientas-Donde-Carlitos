@@ -1,64 +1,80 @@
-body {
-    font-family: 'Lexend', sans-serif; /* Usa Lexend, con respaldo sans-serif */
-    font-weight: 400; /* Grosor normal para el cuerpo del texto */
-    background-color: #f8f8f8; /* Fondo ligeramente más oscuro que blanco puro */
-    color: #333; /* Texto oscuro para buen contraste */
-    margin: 0;
-    padding: 20px; /* Padding general */
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centra horizontalmente el contenido */
-    min-height: 100vh; /* Asegura que ocupe al menos toda la altura de la pantalla */
+/* --- Reseteo Básico y Variables de Color --- */
+:root {
+    --primary-color: #007AFF; /* Azul vibrante para elementos interactivos */
+    --primary-hover: #0056b3; /* Azul más oscuro para hover */
+    --secondary-color: #6c757d; /* Gris secundario para texto menos importante */
+    --background-color: #F8F9FA; /* Fondo de página muy claro */
+    --container-bg: #FFFFFF; /* Fondo del contenedor principal */
+    --text-color: #212529; /* Color de texto principal (casi negro) */
+    --border-color: #E9ECEF; /* Color de borde sutil */
+    --success-color: #28a745; /* Verde para precios */
+    --danger-color: #dc3545; /* Rojo para eliminar */
+    --danger-hover: #c82333; /* Rojo oscuro para hover */
 }
 
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+/* --- Contenedor Principal --- */
 .container {
-    width: 95%;  /* Ancho adaptable, pero no demasiado ancho en pantallas grandes */
-    max-width: 900px; /* Ancho máximo para pantallas grandes */
-    background-color: white;
-    padding: 25px; /* Espaciado interno */
-    border-radius: 10px; /* Bordes redondeados */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    width: 95%;
+    max-width: 900px;
+    background-color: var(--container-bg);
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
 }
 
 h1 {
-    font-family: 'Lexend', sans-serif; /* Lexend para el título */
-    font-weight: 600; /* Negrita para el título */
+    font-size: 2rem;
+    font-weight: 700;
     text-align: center;
-    margin-bottom: 25px;
-    color: #2c3e50; /* Azul oscuro, más profesional */
-    border-bottom: 2px solid #2c3e50; /* Línea inferior */
-    padding-bottom: 10px; /* Espacio debajo de la línea */
+    margin-bottom: 30px;
+    color: var(--text-color);
 }
 
+/* --- Barra de Búsqueda --- */
 .search-container {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 input[type="text"] {
     width: 100%;
-    padding: 12px 40px 12px 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px; /* Bordes ligeramente redondeados */
-    font-size: 16px;
-     font-family: 'Lexend', sans-serif; /* Aplica Lexend*/
+    padding: 12px 16px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
     box-sizing: border-box;
-    transition: border-color 0.3s; /* Transición suave del borde */
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 input[type="text"]:focus {
-    border-color: #3498db; /* Azul al enfocar */
-    outline: none; /* Quita el contorno predeterminado del navegador */
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
 }
 
 .search-icon {
     position: absolute;
-    right: 12px;
+    right: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #999;
+    color: #adb5bd;
 }
 
+/* --- Tabla de Precios --- */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -66,26 +82,40 @@ table {
 }
 
 th, td {
-    padding: 14px 18px; /* Más espaciado */
+    padding: 16px;
     text-align: left;
-    border-bottom: 1px solid #e0e0e0;
-     font-family: 'Lexend', sans-serif; /* Aplica Lexend*/
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
 }
 
 th {
-    background-color: #2c3e50; /* Azul oscuro para los encabezados */
-    color: white;
-    font-weight: 500;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background-color: var(--background-color);
 }
 
-tr:nth-child(even) {
-    background-color: #f2f2f2; /* Gris muy claro para filas pares */
+td {
+    font-size: 0.95rem;
 }
 
 tr:hover {
-    background-color: #d4e6f1; /* Celeste muy suave al pasar el ratón */
+    background-color: #F8F9FA;
 }
 
+/* Estilos para precios y nombre */
+td:first-child { /* Columna de Producto */
+    font-weight: 500;
+}
+
+td:nth-child(2) {  /* Columna de Precio */
+    font-weight: 600;
+    color: var(--success-color);
+}
+
+/* Celdas en modo edición */
 td.editable {
     padding: 0;
 }
@@ -94,107 +124,142 @@ td.editable input {
     width: 100%;
     height: 100%;
     border: none;
-    padding: 14px 18px;
-    font-size: inherit;
-    font-family: 'Lexend', sans-serif; /* Lexend para la edición */
-    font-weight: 400;
+    padding: 16px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    font-weight: 500;
     box-sizing: border-box;
-    background-color: #fff3cd;
+    background-color: #FFF9E6;
+    color: var(--text-color);
 }
 
-/* Estilos para los precios */
-td:nth-child(2) {  /* Selecciona la segunda columna (la de precios) */
-  font-weight: 500; /* Semi-negrita para los precios */
-  color: #27ae60; /* Verde oscuro */
+/* --- Botones y Acciones --- */
+.actions-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Espacio entre los botones */
+    margin-top: 30px;
+    flex-wrap: wrap; /* Para que se ajusten en móviles */
 }
 
-.update-info {
-    margin-top: 1rem;
-    text-align: center;
-    color: #777;
-}
-
-#editButton, #addProductButton, #generatePdfButton { /* Agregué #generatePdfButton */
-    margin-top: 10px;
-    padding: 10px 18px; /* Un poco más de padding */
-    background-color: #3498db; /* Azul */
-    color: white;
-    border: none;
-    border-radius: 5px;
+#editButton, #addProductButton, #generatePdfButton {
+    padding: 10px 22px;
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
-     font-family: 'Lexend', sans-serif; /* Aplica Lexend*/
-    transition: background-color 0.3s ease;
-    margin-right: 10px; /* Separación entre botones */
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s ease;
 }
 
-#editButton:hover, #addProductButton:hover, #generatePdfButton:hover {
-    background-color: #2980b9; /* Azul más oscuro al hacer hover */
+/* Botón Primario (Agregar) */
+#addProductButton {
+    background-color: var(--primary-color);
+    color: white;
+}
+#addProductButton:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+/* Botones Secundarios (Editar, PDF) */
+#editButton, #generatePdfButton {
+    background-color: transparent;
+    color: var(--primary-color);
+}
+#editButton:hover, #generatePdfButton:hover {
+    background-color: var(--primary-color);
+    color: white;
 }
 
 .delete-button {
-    background-color: #e74c3c;
+    background-color: var(--danger-color);
     color: white;
     border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 8px 14px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.3s ease;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
 }
 
 .delete-button:hover {
-    background-color: #c0392b;
+    background-color: var(--danger-hover);
 }
 
 td:nth-child(3) {
-    text-align: center;
+    text-align: right;
+    width: 1%; /* Para que la celda de eliminar no ocupe mucho espacio */
 }
 
-/* Estilos para móviles */
-@media (max-width: 768px) {
-    .container {
-        padding: 15px; /* Menos padding en móviles */
-         width: 98%; /*ancho casi completo en moviles*/
-    }
-    th, td {
-        padding: 10px;  /*Ajuste de espacios en moviles*/
-    }
-    #editButton, #addProductButton, #generatePdfButton {
-        display: block; /* Apila los botones verticalmente en móviles */
-        width: 100%;    /* Ancho completo */
-        margin-bottom: 10px;/*Espacio*/
-        margin-right: 0;  /* Quita el margen derecho en móviles */
-    }
-    .delete-button{
-         padding: 5px 10px;
-        font-size: 0.8em;
-    }
+/* --- Info de Actualización y Enlace a Gemini --- */
+.update-info {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--secondary-color);
 }
-/* ... (Tu CSS existente) ... */
 
 #geminiLink {
-    position: fixed; /* Fija el enlace en la pantalla */
-    bottom: 10px;   /* A 10px de la parte inferior */
-    right: 10px;    /* A 10px de la derecha */
-    z-index: 1000;  /* Asegura que esté por encima de otros elementos */
-    opacity: 0.6; /* Un poco de transparencia para que sea discreto */
-    transition: opacity 0.3s ease; /* Transición suave al pasar el ratón */
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    z-index: 1000;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
 }
 
 #geminiLink:hover {
-    opacity: 1; /* Opacidad total al pasar el ratón */
+    opacity: 1;
 }
 
 #geminiLink img {
-    width: 24px;  /* Tamaño del icono (ajústalo según necesites) */
-    height: 24px;
-    display: block; /* Para que el enlace ocupe todo el tamaño de la imagen */
+    width: 28px;
+    height: 28px;
+    display: block;
 }
 
-/*Ocultar en impresion*/
- @media print {
-    #geminiLink {
+/* --- Responsividad para Móviles --- */
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+    }
+    .container {
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
+    }
+    h1 {
+        font-size: 1.5rem;
+    }
+    th, td {
+        padding: 12px 10px;
+    }
+    .actions-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    #editButton, #addProductButton, #generatePdfButton {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+/* --- Ocultar en Impresión --- */
+@media print {
+    #geminiLink, .actions-container, .search-container, .update-info, th:nth-child(3), td:nth-child(3) {
         display: none;
+    }
+    body {
+        padding: 0;
+    }
+    .container {
+        box-shadow: none;
+        border: none;
     }
 }
