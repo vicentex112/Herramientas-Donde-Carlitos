@@ -3,24 +3,329 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Herramientas de Minimarket</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Herramientas de Minimarket - Menú Mejorado</title>
+    <!-- Favicon del proyecto original -->
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Importación de fuentes y iconos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        /* --- ESTILOS GENERALES Y RESETEO --- */
+        :root {
+            --color-bg: #1a1a2e;
+            --color-bg-light: #16213e;
+            --color-primary: #0f3460;
+            --color-secondary: #537895;
+            --color-accent: #e94560;
+            --color-text: #ffffff;
+            --color-text-muted: #a9a9a9;
+            --shadow-color: rgba(233, 69, 96, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--color-bg), var(--color-bg-light));
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            perspective: 1000px; /* Perspectiva para animaciones 3D */
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .main-container {
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 15px var(--shadow-color);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: var(--color-text-muted);
+            margin-bottom: 3rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        /* --- OPCIONES DEL MENÚ (LAS TARJETAS) --- */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            animation: popIn 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .option-card {
+            background-color: var(--color-primary);
+            padding: 2rem;
+            border-radius: 15px;
+            text-decoration: none;
+            color: var(--color-text);
+            border: 1px solid var(--color-secondary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-card:before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 40%);
+            transform: scale(0);
+            transition: transform 0.6s ease;
+        }
+
+        .option-card:hover {
+            transform: translateY(-15px) rotateX(10deg) scale(1.05);
+            box-shadow: 0 25px 40px var(--shadow-color);
+        }
+        
+        .option-card:hover:before {
+            transform: scale(2);
+        }
+
+        .option-card .icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: var(--color-accent);
+            transition: transform 0.4s ease;
+        }
+        
+        .option-card:hover .icon {
+            transform: scale(1.2);
+        }
+
+        .option-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .option-card p {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+        }
+
+        /* --- ANIMACIÓN DE CARGA (OVERLAY) --- */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(22, 33, 62, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loading-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .animation-container {
+            width: 300px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Contenedor del Ticket (inicialmente oculto) */
+        .ticket-container {
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.4s 0.2s ease, transform 0.4s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .loading-overlay.show-ticket .ticket-container {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .ticket-icon {
+            font-size: 100px;
+            color: #28a745; /* Verde éxito */
+            border: 5px solid #28a745;
+            border-radius: 50%;
+            padding: 20px;
+            animation: pulse-success 1s infinite alternate;
+        }
+        
+        .loading-message {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* Barra de progreso (inicialmente visible) */
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: var(--color-primary);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 2rem;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .loading-overlay.show-ticket .progress-bar-container {
+            opacity: 0;
+            transform: scaleY(0);
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-secondary), var(--color-accent));
+            border-radius: 5px;
+            transition: width 2.5s cubic-bezier(0.4, 0, 0.2, 1); /* Duración de la carga */
+        }
+
+        /* --- ANIMACIONES DE ENTRADA --- */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes pulse-success {
+            from { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            to { box-shadow: 0 0 0 20px rgba(40, 167, 69, 0); }
+        }
+
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Bienvenido a las Herramientas de Minimarket "HassPal Concon"</h1>
-        <p>¿Qué programa quieres ejecutar?</p>
-        <div class="options">
-            <a href="calculadora/calculadora.html" class="option">
-                <img src="https://cdn-icons-png.flaticon.com/512/1032/1032450.png" alt="Icono Calculadora">
-                Calculadora de Vueltos
+    
+    <!-- Contenedor principal de la aplicación -->
+    <div class="main-container">
+        <h1 class="header-title">Herramientas "HassPal Concón"</h1>
+        <p class="header-subtitle">Selecciona una herramienta para comenzar</p>
+
+        <div class="options-grid">
+            <!-- Tarjeta 1: Calculadora de Vueltos -->
+            <a href="calculadora/calculadora.html" class="option-card">
+                <div class="icon">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <h3>Calculadora de Vueltos</h3>
+                <p>Calcula el cambio exacto de forma rápida y sencilla.</p>
             </a>
-            <a href="lista-precios/index.html" class="option">
-                <img src="https://cdn-icons-png.flaticon.com/512/4385/4385502.png" alt="Icono Lista">
-                Lista de Precios
+            
+            <!-- Tarjeta 2: Lista de Precios -->
+            <a href="lista-precios/index.html" class="option-card">
+                <div class="icon">
+                    <i class="fa-solid fa-tags"></i>
+                </div>
+                <h3>Lista de Precios</h3>
+                <p>Consulta y gestiona los precios de todos los productos.</p>
             </a>
         </div>
     </div>
+
+    <!-- Overlay para la animación de carga -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="animation-container">
+            <!-- El ticket aparecerá después de la barra de carga -->
+            <div class="ticket-container">
+                <i class="fa-solid fa-circle-check ticket-icon"></i>
+                <p class="loading-message">¡Listo! Redirigiendo...</p>
+            </div>
+            
+            <!-- La barra de carga se muestra al principio -->
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SCRIPT PARA LA ANIMACIÓN DE CARGA Y REDIRECCIÓN ---
+
+        // 1. Obtenemos todos los enlaces de las tarjetas de opción
+        const optionLinks = document.querySelectorAll('.option-card');
+        
+        // 2. Obtenemos los elementos del overlay de carga
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const progressBar = document.getElementById('progress-bar');
+
+        // 3. Añadimos un listener a cada enlace
+        optionLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                // Prevenimos la redirección inmediata para mostrar la animación
+                event.preventDefault(); 
+
+                // Guardamos la URL a la que queremos ir
+                const destinationUrl = this.href;
+
+                // Mostramos el overlay de carga
+                loadingOverlay.classList.add('visible');
+
+                // Forzamos un reflow para que la transición de la barra de progreso funcione
+                // Es un pequeño truco para asegurar que la animación comience desde 0%
+                void progressBar.offsetWidth;
+
+                // Iniciamos la animación de la barra de progreso
+                progressBar.style.width = '100%';
+
+                // 4. Configuramos los tiempos de la animación
+                
+                // Después de 2.5 segundos, la barra se completa.
+                // Ocultamos la barra y mostramos el ticket de éxito.
+                setTimeout(() => {
+                    loadingOverlay.classList.add('show-ticket');
+                }, 2500); // 2.5 segundos
+
+                // Después de 3 segundos en total, redirigimos a la página de destino.
+                setTimeout(() => {
+                    window.location.href = destinationUrl;
+                }, 3000); // 3 segundos
+            });
+        });
+
+    </script>
 </body>
 </html>
