@@ -12,7 +12,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
+    <script>
+        // Polyfill para la marca de Facebook/Meta, por si no está en la fuente de iconos
+        (function() {
+            const a = {},
+                b = document.createElement("script"),
+                c = document.getElementsByTagName("script")[0];
+            b.type = "text/javascript", b.async = !0, b.src = "https://kit.fontawesome.com/a076d05399.js", c.parentNode.insertBefore(b, c)
+        })();
+    </script>
     <style>
         /* --- ESTILOS GENERALES Y RESETEO --- */
         :root {
@@ -40,13 +48,14 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            padding: 1rem;
             perspective: 1000px; /* Perspectiva para animaciones 3D */
         }
 
         /* --- CONTENEDOR PRINCIPAL --- */
         .main-container {
             width: 90%;
-            max-width: 800px;
+            max-width: 1000px; /* Ancho máximo aumentado para más tarjetas */
             text-align: center;
             padding: 2rem;
         }
@@ -246,22 +255,40 @@
         <p class="header-subtitle">Selecciona una herramienta para comenzar</p>
 
         <div class="options-grid">
-            <!-- Tarjeta 1: Calculadora de Vueltos -->
-            <a href="calculadora/calculadora.html" class="option-card">
-                <div class="icon">
-                    <i class="fa-solid fa-calculator"></i>
-                </div>
-                <h3>Calculadora de Vueltos</h3>
-                <p>Calcula el cambio exacto de forma rápida y sencilla.</p>
-            </a>
-            
-            <!-- Tarjeta 2: Lista de Precios -->
+            <!-- Tarjeta 1: Lista de Precios (Ahora la primera) -->
             <a href="lista-precios/index.html" class="option-card">
                 <div class="icon">
                     <i class="fa-solid fa-tags"></i>
                 </div>
                 <h3>Lista de Precios</h3>
                 <p>Consulta y gestiona los precios de todos los productos.</p>
+            </a>
+            
+            <!-- Tarjeta 2: Correo (NUEVA) -->
+            <a href="https://www.spacemail.com/es/login/?f=INBOX" target="_blank" rel="noopener noreferrer" class="option-card">
+                <div class="icon">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <h3>Correo</h3>
+                <p>Accede a tu bandeja de entrada de SpaceMail.</p>
+            </a>
+            
+            <!-- Tarjeta 3: Centro de Meta (NUEVA) -->
+            <a href="https://business.facebook.com" target="_blank" rel="noopener noreferrer" class="option-card">
+                <div class="icon">
+                    <i class="fa-brands fa-meta"></i>
+                </div>
+                <h3>Centro de Meta</h3>
+                <p>Gestiona tus activos de negocio de Facebook.</p>
+            </a>
+            
+            <!-- Tarjeta 4: Calculadora de Vueltos (Ahora la última) -->
+            <a href="calculadora/calculadora.html" class="option-card">
+                <div class="icon">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <h3>Calculadora de Vueltos</h3>
+                <p>Calcula el cambio exacto de forma rápida y sencilla.</p>
             </a>
         </div>
     </div>
@@ -295,6 +322,11 @@
         // 3. Añadimos un listener a cada enlace
         optionLinks.forEach(link => {
             link.addEventListener('click', function(event) {
+                // Si el enlace se abre en una nueva pestaña, no hacemos la animación
+                if (link.target === '_blank') {
+                    return;
+                }
+                
                 // Prevenimos la redirección inmediata para mostrar la animación
                 event.preventDefault(); 
 
@@ -305,21 +337,16 @@
                 loadingOverlay.classList.add('visible');
 
                 // Forzamos un reflow para que la transición de la barra de progreso funcione
-                // Es un pequeño truco para asegurar que la animación comience desde 0%
                 void progressBar.offsetWidth;
 
                 // Iniciamos la animación de la barra de progreso
                 progressBar.style.width = '100%';
 
                 // 4. Configuramos los tiempos de la animación
-                
-                // Después de 2.5 segundos, la barra se completa.
-                // Ocultamos la barra y mostramos el ticket de éxito.
                 setTimeout(() => {
                     loadingOverlay.classList.add('show-ticket');
                 }, 2500); // 2.5 segundos
 
-                // Después de 3 segundos en total, redirigimos a la página de destino.
                 setTimeout(() => {
                     window.location.href = destinationUrl;
                 }, 3000); // 3 segundos
